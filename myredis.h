@@ -3,10 +3,8 @@
 
 #include <hiredis/hiredis.h>
 #include <string>
-#include "bus/bus_log.h"
+#include "log.h"
 
-namespace  bus
-{
 class MyRedis
 {
     public:
@@ -27,7 +25,7 @@ class MyRedis
         int RedisPipeAppendCmd(const char *szFormat, ...);
         int RedisPipeGetResult();
         int Reconnect();
-        
+
 
         int Auth();
 
@@ -50,7 +48,6 @@ class MyRedis
 
         int             m_nAppendCmdCount;
 };
-}
 
 
 #endif

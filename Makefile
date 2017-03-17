@@ -11,25 +11,28 @@ INC_DIR = -I tinyxml
 LOG_DIR = log
 
 APP_DIR = .
-APP_NAME = inform_mysqlrep
+APP_NAME = binlogsub 
 APP_OBJ_DIR = obj
 
 
 all: ${APP_DIR} ${APP_OBJ_DIR} ${APP_DIR}/${APP_NAME} 
 
 
-#for sbin
-APP_OBJ = ${APP_OBJ_DIR}/inform_mysqlrep.o \
-    ${APP_OBJ_DIR}/bus_charset.o \
-	${APP_OBJ_DIR}/bus_config.o \
-	${APP_OBJ_DIR}/bus_event.o \
- 	${APP_OBJ_DIR}/bus_log.o \
- 	${APP_OBJ_DIR}/bus_row.o \
- 	${APP_OBJ_DIR}/bus_util.o \
- 	${APP_OBJ_DIR}/my_time.o \
- 	${APP_OBJ_DIR}/bus_interface.o \
- 	${APP_OBJ_DIR}/myredis.o \
- 	${APP_OBJ_DIR}/inform_process.o \
+APP_OBJ = ${APP_OBJ_DIR}/process.o \
+		${APP_OBJ_DIR}/config.o \
+		${APP_OBJ_DIR}/myregex.o \
+		${APP_OBJ_DIR}/schema.o \
+		${APP_OBJ_DIR}/log.o \
+		${APP_OBJ_DIR}/mysqlProcess.o \
+		${APP_OBJ_DIR}/util.o \
+		${APP_OBJ_DIR}/packet.o \
+		${APP_OBJ_DIR}/memblock.o \
+		${APP_OBJ_DIR}/event.o \
+		${APP_OBJ_DIR}/row.o \
+		${APP_OBJ_DIR}/my_time.o \
+		${APP_OBJ_DIR}/mydecimal.o \
+		${APP_OBJ_DIR}/business.o \
+		${APP_OBJ_DIR}/myredis.o \
 
 
 

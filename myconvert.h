@@ -3,6 +3,7 @@
 #define __MY_CONVERT_H
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 typedef int8_t	int8;
 typedef int16_t	int16;
 typedef int32_t	int32;
@@ -11,6 +12,8 @@ typedef uint8_t uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
+
+typedef unsigned char uchar;
 
 
 #define sint2korr(A)    (*((int16 *) (A)))
@@ -128,32 +131,22 @@ do { doubleget_union _tmp; \
      (V) = _tmp.v; } while(0)
 
 #define float8get(V,M)   doubleget((V),(M))
-#if 0
-int DecodePacketInt(const char*pBuf,uint32 *pPos){
-    int n = (int)(uint8)(*pBuf); 
-    int i = 0;
-    
-    if (n < 251){
-        *pPos += 1;
-        return n; 
-    }
-    else if (n == 251){
-        *pPos += 1;
-        return 0;
-    }
-    else if (n == 252){
-        i = uint2korr((pBuf + 1)); *pPos += 3;
-        return i;  
-    }
-    else if (n == 253){
-        i = uint3korr((pBuf + 1)); *pPos += 4;
-        return i;
-    }                   
-    else{               
-        i = uint4korr((pBuf + 1)); *pPos += 9;
-        return i;
-    }
-} 
-#endif
+
+
+#define int2store(T,A)       do { uint def_temp= (uint) (A) ;\
+        *((uchar*) (T))=  (uchar)(def_temp); \
+        *((uchar*) (T)+1)=(uchar)((def_temp >> 8)); \
+} while(0)
+
+#define int3store(T,A)       do { /*lint -save -e734 */\
+        *((uchar*)(T))=(uchar) ((A));\
+        *((uchar*) (T)+1)=(uchar) (((A) >> 8));\
+        *((uchar*)(T)+2)=(uchar) (((A) >> 16)); \
+        /*lint -restore */} while(0)
+#define int4store(T,A)       do { *((char *)(T))=(char) ((A));\
+        *(((char *)(T))+1)=(char) (((A) >> 8));\
+        *(((char *)(T))+2)=(char) (((A) >> 16));\
+        *(((char *)(T))+3)=(char) (((A) >> 24)); } while(0)
+
 
 #endif  
