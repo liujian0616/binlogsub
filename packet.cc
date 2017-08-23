@@ -266,7 +266,7 @@ int Packet::Init(bool bChecksumEnable, IBusiness *pIBusiness)
     if (pErrorPacket == NULL)
         return -1;
 
-    NormalPacket *pNormalPacket = new NormalPacket(bChecksumEnable, m_pContext);
+    NormalPacket *pNormalPacket = new NormalPacket(m_pContext);
     if (pNormalPacket == NULL)
         return -1;
 

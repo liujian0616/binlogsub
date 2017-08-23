@@ -77,7 +77,7 @@ class ErrorPacket : public PacketBase
 class NormalPacket : public PacketBase
 {
     public:
-        NormalPacket(bool bChecksumEnable, tagContext *pContext) 
+        NormalPacket(tagContext *pContext) 
             : m_pContext(pContext) {};
         ~NormalPacket(){};
 
