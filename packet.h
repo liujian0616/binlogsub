@@ -78,8 +78,7 @@ class NormalPacket : public PacketBase
 {
     public:
         NormalPacket(bool bChecksumEnable, tagContext *pContext) 
-            : m_bChecksumEnable( bChecksumEnable )
-            , m_pContext(pContext) {};
+            : m_pContext(pContext) {};
         ~NormalPacket(){};
 
         virtual int Parse();
@@ -89,7 +88,6 @@ class NormalPacket : public PacketBase
         int ParseTablemapEvent();
         int ParseRowEvent();
 
-        bool            m_bChecksumEnable;
         tagContext      *m_pContext;
 };
 
@@ -104,6 +102,7 @@ class Packet
         int Read(int fd);
         int Parse();
         int ReallocBuf(uint32_t uSize);
+        int ResetContext();
 
     private:
         map<uint8_t, PacketBase*>   m_mapFlagToPacket;
@@ -113,7 +112,6 @@ class Packet
 
         uint32_t                    m_uHeadLen;
         uint32_t                    m_uBodyLen;
-        bool                        m_bChecksumEnable;
 
         tagContext                  *m_pContext;
 };

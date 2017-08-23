@@ -115,7 +115,7 @@ int NormalPacket::ParseRotateEvent()
     int nRet = 0;
 
     uint32_t uBodyLenWithoutCrc = m_uBodyLen;
-    if (m_bChecksumEnable == true && m_pContext->cFormatEvent.m_u8Alg != BINLOG_CHECKSUM_ALG_OFF && m_pContext->cFormatEvent.m_u8Alg != BINLOG_CHECKSUM_ALG_UNDEF)
+    if (m_pContext->bChecksumEnable == true && m_pContext->cFormatEvent.m_u8Alg != BINLOG_CHECKSUM_ALG_OFF && m_pContext->cFormatEvent.m_u8Alg != BINLOG_CHECKSUM_ALG_UNDEF)
         uBodyLenWithoutCrc -= BINLOG_CHECKSUM_LEN;
 
     nRet = m_pContext->cRotateEvent.Parse(m_pBodyBuf, m_uPos, uBodyLenWithoutCrc);
@@ -147,7 +147,7 @@ int NormalPacket::ParseFormatEvent()
         m_pContext->mTidToTmEvent.erase(it++);
     }
 
-    nRet = m_pContext->cFormatEvent.Parse(m_pBodyBuf, m_uPos, m_uBodyLen, m_bChecksumEnable);
+    nRet = m_pContext->cFormatEvent.Parse(m_pBodyBuf, m_uPos, m_uBodyLen, m_pContext->bChecksumEnable);
     return nRet;
 }
 
@@ -157,7 +157,7 @@ int NormalPacket::ParseTablemapEvent()
     //DOLOG("[trace]%s tablemap event", __FUNCTION__);
 
     uint32_t uBodyLenWithoutCrc = m_uBodyLen;
-    if (m_bChecksumEnable == true && m_pContext->cFormatEvent.m_u8Alg != BINLOG_CHECKSUM_ALG_OFF && m_pContext->cFormatEvent.m_u8Alg != BINLOG_CHECKSUM_ALG_UNDEF)
+    if (m_pContext->bChecksumEnable == true && m_pContext->cFormatEvent.m_u8Alg != BINLOG_CHECKSUM_ALG_OFF && m_pContext->cFormatEvent.m_u8Alg != BINLOG_CHECKSUM_ALG_UNDEF)
         uBodyLenWithoutCrc -= BINLOG_CHECKSUM_LEN;
 
     uint64_t u64Tableid = TablemapEvent::GetTableid(m_pBodyBuf, m_uPos, &m_pContext->cFormatEvent);
@@ -188,7 +188,7 @@ int NormalPacket::ParseRowEvent()
     //DOLOG("[trace]%s row event, eventType:0x%X", __FUNCTION__, m_pContext->cEventCommHead.m_u8EventType);
 
     uint32_t uBodyLenWithoutCrc = m_uBodyLen;
-    if (m_bChecksumEnable == true && m_pContext->cFormatEvent.m_u8Alg != BINLOG_CHECKSUM_ALG_OFF && m_pContext->cFormatEvent.m_u8Alg != BINLOG_CHECKSUM_ALG_UNDEF)
+    if (m_pContext->bChecksumEnable == true && m_pContext->cFormatEvent.m_u8Alg != BINLOG_CHECKSUM_ALG_OFF && m_pContext->cFormatEvent.m_u8Alg != BINLOG_CHECKSUM_ALG_UNDEF)
         uBodyLenWithoutCrc -= BINLOG_CHECKSUM_LEN;
 
     uint64_t u64Tableid = RowEvent::GetTableid(m_pBodyBuf, m_uPos, m_pContext->cEventCommHead.m_u8EventType, &m_pContext->cFormatEvent);
@@ -219,7 +219,6 @@ int NormalPacket::ParseRowEvent()
 /***********************class Packet*******************/
 Packet::Packet()
 {
-    m_bChecksumEnable = false;
     m_pContext = NULL;
 
     m_mapFlagToPacket.clear();
@@ -255,12 +254,12 @@ Packet::~Packet()
 
 int Packet::Init(bool bChecksumEnable, IBusiness *pIBusiness)
 {
-    m_bChecksumEnable = bChecksumEnable;
     m_pContext = new tagContext();
     if (m_pContext == NULL)
         return -1;
 
     m_pContext->pIBusiness = pIBusiness;
+    m_pContext->bChecksumEnable = bChecksumEnable;
 
     m_mapFlagToPacket.clear();
     ErrorPacket *pErrorPacket = new ErrorPacket();
@@ -298,6 +297,16 @@ int Packet::ReallocBuf(uint32_t uSize)
     m_pBodyBuf = pTemp;
     m_uBodyBufLen = uSize;
 
+    return 0;
+}
+
+int Packet::ResetContext()
+{
+    if (m_pContext)
+    {
+        m_pContext->cFormatEvent.m_u8Alg = BINLOG_CHECKSUM_ALG_OFF;
+        m_pContext->cFormatEvent.m_u8Alg = BINLOG_CHECKSUM_ALG_UNDEF;
+    }
     return 0;
 }
 

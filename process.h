@@ -54,5 +54,6 @@ class Process
 
         MysqlProcess *m_pMysqlProc;
         Packet *m_pPacket;
+        IBusiness *m_pIBusiness;
 };
 #endif

@@ -144,6 +144,7 @@ struct tagContext
     IBusiness       *pIBusiness;
     string          sNextBinlogFileName;
     uint32_t        uNextBinlogPos;
+    bool            bChecksumEnable;
 };
 
 #endif

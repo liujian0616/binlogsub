@@ -132,20 +132,20 @@ int Process::Init(char *szPidFile, bool bDaemon)
     m_bChecksumEnable = m_pMysqlProc->CheckIsChecksumEnable();
     DOLOG("[trace]%s binlogfilename:%s, binlogpos:%u, bChecksumEnable:%d", __FUNCTION__, m_sBinlogFileName.c_str(), m_uBinlogPos, m_bChecksumEnable);
 
-    IBusiness *pIBusiness = NULL;
     Business *pBusiness = NULL;
     pBusiness = new Business();
     if (pBusiness == NULL)
         return -1;
     pBusiness->Init();
-    pIBusiness = pBusiness;
+    m_pIBusiness = pBusiness;
 
-    nRet = m_pPacket->Init(m_bChecksumEnable, pIBusiness);
+    nRet = m_pPacket->Init(m_bChecksumEnable, m_pIBusiness);
     return nRet;
 }
 
 int Process::Run()
 {
+#if 0
     int nRet = 0;
     //DOLOG("[trace]%s bchecksumEnable:%d", __FUNCTION__, m_bChecksumEnable);
     //string sBinlogFileName;
@@ -156,8 +156,40 @@ int Process::Run()
     //m_uBinlogPos = 4;
     //m_uBinlogPos = 521647552;
     m_pMysqlProc->ReqBinlog(m_sBinlogFileName, m_uBinlogPos, m_bChecksumEnable);
-    
+
     Loop();
+#endif
+
+    int nRet = 0;
+    int nRetryCount = 0;
+
+    while (1) 
+    {   
+
+        m_pMysqlProc->ReqBinlog(m_sBinlogFileName, m_uBinlogPos, m_bChecksumEnable);
+        Loop();
+
+        m_pMysqlProc->DisConnect();
+        usleep(500);
+        nRet = m_pMysqlProc->Connect();
+        if (nRet != 0)
+            return -1; 
+
+        if (nRetryCount++ > 3)
+        {   
+            m_pMysqlProc->GetNowBinlogPos(m_sBinlogFileName, m_uBinlogPos);
+            DOLOG("[warn]%s reconnect and start at the latest binlogpos:%s,%d", __FUNCTION__, m_sBinlogFileName.c_str(), m_uBinlogPos);
+            nRetryCount = 0;
+        }   
+        else
+        {   
+            m_pIBusiness->ReadNextReqPos(m_sBinlogFileName, m_uBinlogPos);
+            DOLOG("[warn]%s reconnect and start at the old binlogpos:%s,%d", __FUNCTION__, m_sBinlogFileName.c_str(), m_uBinlogPos);
+        }   
+
+        nRet = m_pPacket->ResetContext();
+    }
+
 
     return 0;
 }
